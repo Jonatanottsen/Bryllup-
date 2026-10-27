@@ -60,17 +60,17 @@ async function build(type: string) {
     case "buss": {
       const rows = await db().select().from(busBookings).orderBy(asc(busBookings.trip), asc(busBookings.stop), asc(busBookings.seat));
       return toCsv(
-        ["Tur", "Stopp", "Sete", "Navn"],
-        rows.map((r) => [BUS_TRIPS[r.trip].label, BUS_STOPS[r.stop].label, r.seat, r.passengerName]),
+        ["Tur", "Av-/påstigning", "Sete", "Navn"],
+        rows.map((r) => [BUS_TRIPS[r.trip].label, r.stop ? BUS_STOPS[r.stop].label : "Fra kirken", r.seat, r.passengerName]),
       );
     }
     case "onskeliste": {
       const items = await db().query.wishlistItems.findMany({ with: { reservations: true, contributions: true } });
       return toCsv(
-        ["Gave", "Fra", "Beløp (kr)", "Hilsen"],
+        ["Gave", "Fra", "Beløp (kr)", "Ordner gaven", "Hilsen"],
         items.flatMap((i) => [
-          ...i.reservations.map((r) => [i.title, r.name, "", ""]),
-          ...i.contributions.map((c) => [i.title, c.name, c.amountNok, c.message]),
+          ...i.reservations.map((r) => [i.title, r.name, "", "", ""]),
+          ...i.contributions.map((c) => [i.title, c.name, c.amountNok, c.willOrganize ? "Ja" : "", c.message]),
         ]),
       );
     }

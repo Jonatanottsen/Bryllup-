@@ -39,12 +39,12 @@ export function WishForm({ item, onDone }: { item?: WishlistItem; onDone?: () =>
         <label className="label">Type</label>
         <select name="kind" className="input" value={kind} onChange={(e) => setKind(e.target.value as "gave" | "spleis")}>
           <option value="gave">Gave (reserveres)</option>
-          <option value="spleis">Spleis (bidrag mot mål)</option>
+          <option value="spleis">Spleis (gruppegave)</option>
         </select>
       </div>
       {kind === "spleis" ? (
         <div>
-          <label className="label">Mål for spleis (kr)</label>
+          <label className="label">Pris på gaven / mål for spleisen (kr)</label>
           <input name="goalNok" type="number" min={1} className="input" required defaultValue={item?.goalNok ?? ""} />
           <input type="hidden" name="quantity" value="1" />
         </div>

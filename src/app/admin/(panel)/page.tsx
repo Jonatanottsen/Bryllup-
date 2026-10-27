@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { allergenLabel, BUS_SEAT_COUNT } from "@/config/wedding";
+import { allergenLabel, BUS_RESERVED, BUS_SEAT_COUNT } from "@/config/wedding";
 import { getDietarySummary, getStats } from "../queries";
 
 function Stat({ label, value, href }: { label: string; value: string | number; href?: string }) {
@@ -22,8 +22,8 @@ export default async function AdminHome() {
         <Stat label="Kan ikke komme" value={s.declined_guests} href="/admin/gjester" />
         <Stat label="Svar mottatt" value={s.responses} href="/admin/gjester" />
         <Stat label="Taler / innslag" value={s.speeches} href="/admin/gjester#taler" />
-        <Stat label="Buss til bryllupet" value={`${s.bus_til}/${BUS_SEAT_COUNT}`} href="/admin/buss" />
-        <Stat label="Buss hjem" value={`${s.bus_hjem}/${BUS_SEAT_COUNT}`} href="/admin/buss" />
+        <Stat label="Buss til festen" value={`${s.bus_til}/${BUS_SEAT_COUNT - BUS_RESERVED.til.length}`} href="/admin/buss" />
+        <Stat label="Buss hjem" value={`${s.bus_hjem}/${BUS_SEAT_COUNT - BUS_RESERVED.hjem.length}`} href="/admin/buss" />
         <Stat label="Gaver reservert" value={s.reserved} href="/admin/onskeliste" />
         <Stat label="Spleis registrert" value={`${s.raised.toLocaleString("nb-NO")} kr`} href="/admin/onskeliste" />
       </div>

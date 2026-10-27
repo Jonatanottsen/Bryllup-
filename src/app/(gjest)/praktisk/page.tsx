@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BUS_STOPS, BUS_TRIPS, PRACTICAL, SCHEDULE, WEDDING } from "@/config/wedding";
+import { BUS_TRIPS, PRACTICAL, SCHEDULE, WEDDING } from "@/config/wedding";
 
 export default function PracticalPage() {
   return (
@@ -14,7 +14,7 @@ export default function PracticalPage() {
         <ol className="space-y-3">
           {SCHEDULE.map((s) => (
             <li key={s.time + s.title} className="flex gap-4">
-              <span className="w-14 shrink-0 font-medium text-gold">{s.time}</span>
+              <span className="w-20 shrink-0 font-medium text-gold">{s.time}</span>
               <span>
                 {s.title}
                 {s.place && (
@@ -39,9 +39,7 @@ export default function PracticalPage() {
       <section className="card">
         <h2 className="mb-4 text-3xl">Buss</h2>
         <ul className="space-y-2">
-          {Object.values(BUS_STOPS).map((s) => (
-            <li key={s.label}><strong>{s.label}:</strong> {s.pickup}</li>
-          ))}
+          <li><strong>{BUS_TRIPS.til.label}:</strong> {BUS_TRIPS.til.detail} ({WEDDING.church.address})</li>
           <li><strong>{BUS_TRIPS.hjem.label}:</strong> {BUS_TRIPS.hjem.detail}</li>
         </ul>
         <Link href="/buss" className="btn mt-4">Velg sete på bussen</Link>
@@ -61,7 +59,13 @@ export default function PracticalPage() {
         <ul className="space-y-2">
           {WEDDING.contact.map((c) => (
             <li key={c.role}>
-              <strong>{c.role}:</strong> {c.name} · <a className="underline" href={`tel:${c.phone}`}>{c.phone}</a>
+              <strong>{c.role}:</strong> {c.name}
+              {c.phone && (
+                <>
+                  {" · "}
+                  <a className="underline" href={`tel:${c.phone}`}>{c.phone}</a>
+                </>
+              )}
             </li>
           ))}
         </ul>

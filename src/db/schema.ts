@@ -9,6 +9,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -66,6 +67,7 @@ export const guests = pgTable(
 // Buss
 // Ett sete kan bare bookes én gang per tur – håndheves av unik-constraint,
 // så to gjester som klikker samtidig aldri får samme sete.
+// Turen dit har ett hentested (kirken), så `stop` gjelder kun hjemturen.
 // ---------------------------------------------------------------------------
 
 export const busTrip = pgEnum("bus_trip", ["til", "hjem"]);
@@ -78,7 +80,7 @@ export const busBookings = pgTable(
     trip: busTrip("trip").notNull(),
     seat: integer("seat").notNull(),
     passengerName: text("passenger_name").notNull(),
-    stop: busStop("stop").notNull(),
+    stop: busStop("stop"),
     // Anonym nettleser-id, slik at den som booket kan avbestille selv.
     ownerId: text("owner_id").notNull(),
     createdAt: createdAt(),
@@ -86,13 +88,18 @@ export const busBookings = pgTable(
   (t) => [
     unique("bus_bookings_trip_seat_uq").on(t.trip, t.seat),
     check("bus_bookings_seat_positive", sql`${t.seat} > 0`),
+    check(
+      "bus_bookings_stop_only_home",
+      sql`(${t.trip} = 'hjem') = (${t.stop} IS NOT NULL)`,
+    ),
   ],
 );
 
 // ---------------------------------------------------------------------------
 // Ønskeliste
 // "gave"   = vanlig gave som reserveres (quantity = hvor mange vi ønsker oss)
-// "spleis" = gjestene bidrar med beløp mot et mål (goal_nok)
+// "spleis" = gruppegave: gjestene bidrar med beløp mot prisen (goal_nok),
+//            og én av dem (will_organize) kjøper gaven og tar imot Vipps.
 // ---------------------------------------------------------------------------
 
 export const wishKind = pgEnum("wish_kind", ["gave", "spleis"]);
@@ -145,12 +152,22 @@ export const wishlistContributions = pgTable(
     name: text("name").notNull(),
     amountNok: integer("amount_nok").notNull(),
     message: text("message"),
+    phone: text("phone"),
+    willOrganize: boolean("will_organize").notNull().default(false),
     ownerId: text("owner_id").notNull(),
     createdAt: createdAt(),
   },
   (t) => [
     index("wishlist_contributions_item_id_idx").on(t.itemId),
+    // Maks én ansvarlig per spleis, også ved samtidige innsendinger.
+    uniqueIndex("wishlist_contributions_one_organizer_uq")
+      .on(t.itemId)
+      .where(sql`${t.willOrganize}`),
     check("wishlist_contributions_amount_positive", sql`${t.amountNok} > 0`),
+    check(
+      "wishlist_contributions_organizer_has_phone",
+      sql`NOT ${t.willOrganize} OR ${t.phone} IS NOT NULL`,
+    ),
   ],
 );
 

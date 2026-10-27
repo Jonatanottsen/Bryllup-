@@ -61,7 +61,11 @@ export default async function WishlistAdmin({ searchParams }: { searchParams: Pr
                   ))}
                   {i.contributions.map((c) => (
                     <li key={c.id} className="flex justify-between py-1">
-                      <span>💛 {c.name} – {nok(c.amountNok)}{c.message && <em className="text-muted"> «{c.message}»</em>}</span>
+                      <span>
+                        💛 {c.name} – {nok(c.amountNok)}
+                        {c.willOrganize && <strong className="text-gold"> · 🛍️ ordner gaven ({c.phone})</strong>}
+                        {c.message && <em className="text-muted"> «{c.message}»</em>}
+                      </span>
                       <ConfirmButton action={deleteContributionAdmin.bind(null, c.id)} confirm="Fjerne bidraget?">Fjern</ConfirmButton>
                     </li>
                   ))}

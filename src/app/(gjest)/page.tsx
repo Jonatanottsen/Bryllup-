@@ -6,8 +6,8 @@ export const dynamic = "force-dynamic";
 const CARDS = [
   { href: "/rsvp", title: "Svar på invitasjonen", text: `Gi oss beskjed innen ${WEDDING.rsvpDeadline}, og fortell oss om allergier.` },
   { href: "/praktisk", title: "Praktisk informasjon", text: "Tider, steder, antrekk og alt du lurer på." },
-  { href: "/buss", title: "Buss", text: "Velg din plass på bussen fra Gjøvik og Raufoss – og hjem igjen." },
-  { href: "/onskeliste", title: "Ønskeliste", text: "Reserver en gave eller bli med på en spleis." },
+  { href: "/buss", title: "Buss", text: "Velg plass på bussen fra kirken til festen – og hjem igjen til Raufoss eller Gjøvik." },
+  { href: "/onskeliste", title: "Ønskeliste", text: "Reserver en gave, eller spleis på en gave sammen med andre." },
 ];
 
 // Serverkomponent som rendres per forespørsel, så "nå" er trygt å lese her.
@@ -43,7 +43,7 @@ export default function HomePage() {
         <ol className="space-y-3">
           {SCHEDULE.map((s) => (
             <li key={s.time + s.title} className="flex gap-4">
-              <span className="w-14 shrink-0 font-medium text-gold">{s.time}</span>
+              <span className="w-20 shrink-0 font-medium text-gold">{s.time}</span>
               <span>
                 {s.title}
                 {s.place && <span className="text-muted"> · {s.place}</span>}

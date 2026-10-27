@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { BUS_LAYOUT, BUS_STOPS, BUS_TRIPS } from "@/config/wedding";
+import { BUS_LAYOUT, BUS_RESERVED, BUS_STOPS, BUS_TRIPS } from "@/config/wedding";
 import type { BusStop, BusTrip } from "@/db/schema";
 import { bookSeat, cancelSeat } from "./actions";
 
-export type SeatInfo = { id: string; trip: BusTrip; seat: number; name: string; stop: BusStop; mine: boolean };
+export type SeatInfo = { id: string; trip: BusTrip; seat: number; name: string; stop: BusStop | null; mine: boolean };
 
 const NAME_KEY = "bryllup_navn";
 
@@ -26,13 +26,14 @@ export function BusMap({ bookings, seatCount }: { bookings: SeatInfo[]; seatCoun
 
   const taken = new Map(bookings.filter((b) => b.trip === trip).map((b) => [b.seat, b]));
   const mine = bookings.filter((b) => b.mine);
-  const free = seatCount - taken.size;
+  const reserved = new Map(BUS_RESERVED[trip].map((r) => [r.seat, r.name]));
+  const free = seatCount - taken.size - reserved.size;
 
   const book = () => {
     if (selected === null) return;
     setError(null);
     start(async () => {
-      const res = await bookSeat({ trip, seat: selected, passengerName: name, stop: stop as BusStop });
+      const res = await bookSeat({ trip, seat: selected, passengerName: name, stop: trip === "hjem" ? (stop as BusStop) : null });
       if (res.error) setError(res.error);
       else {
         try { localStorage.setItem(NAME_KEY, name.trim()); } catch {}
@@ -45,6 +46,20 @@ export function BusMap({ bookings, seatCount }: { bookings: SeatInfo[]; seatCoun
 
   const seat = (n: number) => {
     const b = taken.get(n);
+    const held = reserved.get(n);
+    if (held) {
+      return (
+        <div
+          key={n}
+          title={`Holdt av til ${held}`}
+          aria-label={`Sete ${n}, holdt av til ${held}`}
+          className="flex h-12 w-full flex-col items-center justify-center rounded-t-xl rounded-b-md border-2 border-rose/40 bg-rose/15 text-[10px] leading-tight text-rose"
+        >
+          <span className="font-semibold">♥ {n}</span>
+          <span className="max-w-full truncate px-0.5">{held}</span>
+        </div>
+      );
+    }
     const isSel = selected === n;
     const cls = b
       ? b.mine
@@ -59,7 +74,7 @@ export function BusMap({ bookings, seatCount }: { bookings: SeatInfo[]; seatCoun
         type="button"
         disabled={!!b}
         onClick={() => { setSelected(isSel ? null : n); setError(null); }}
-        title={b ? `${b.name} (${BUS_STOPS[b.stop].label})` : `Sete ${n} – ledig`}
+        title={b ? `${b.name}${b.stop ? ` (${BUS_STOPS[b.stop].label})` : ""}` : `Sete ${n} – ledig`}
         aria-label={b ? `Sete ${n}, opptatt av ${b.name}` : `Sete ${n}, ledig`}
         className={`flex h-12 w-full flex-col items-center justify-center rounded-t-xl rounded-b-md border-2 text-[10px] leading-tight transition ${cls}`}
       >
@@ -116,6 +131,7 @@ export function BusMap({ bookings, seatCount }: { bookings: SeatInfo[]; seatCoun
           <span className="flex items-center gap-1"><span className="size-3 rounded bg-sage" /> Valgt</span>
           <span className="flex items-center gap-1"><span className="size-3 rounded bg-gold" /> Dine seter</span>
           <span className="flex items-center gap-1"><span className="size-3 rounded bg-black/10" /> Opptatt</span>
+          {reserved.size > 0 && <span className="flex items-center gap-1"><span className="size-3 rounded bg-rose/30" /> Brudeparet</span>}
         </div>
       </div>
 
@@ -135,24 +151,27 @@ export function BusMap({ bookings, seatCount }: { bookings: SeatInfo[]; seatCoun
                 <label className="label" htmlFor="pname">Navn på passasjer</label>
                 <input id="pname" className="input" value={name} onChange={(e) => setName(e.target.value)} />
               </div>
-              <div>
-                <p className="label">{trip === "til" ? "Hvor går du på?" : "Hvor går du av?"}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {(Object.keys(BUS_STOPS) as BusStop[]).map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setStop(s)}
-                      className={`rounded-lg border-2 p-2 text-sm ${stop === s ? "border-sage bg-sage-light" : "border-black/10"}`}
-                    >
-                      {BUS_STOPS[s].label}
-                    </button>
-                  ))}
+              {trip === "hjem" ? (
+                <div>
+                  <p className="label">Hvor skal du gå av?</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(Object.keys(BUS_STOPS) as BusStop[]).map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setStop(s)}
+                        className={`rounded-lg border-2 p-2 text-sm ${stop === s ? "border-sage bg-sage-light" : "border-black/10"}`}
+                      >
+                        {BUS_STOPS[s].label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                {stop && trip === "til" && <p className="mt-2 text-xs text-muted">Henting: {BUS_STOPS[stop].pickup}</p>}
-              </div>
+              ) : (
+                <p className="text-sm text-muted">Bussen henter ved Raufoss kirke rett etter vielsen.</p>
+              )}
               {error && <p className="error">{error}</p>}
-              <button className="btn w-full" disabled={pending || name.trim().length < 2 || !stop} onClick={book}>
+              <button className="btn w-full" disabled={pending || name.trim().length < 2 || (trip === "hjem" && !stop)} onClick={book}>
                 {pending ? "Booker …" : "Book sete"}
               </button>
             </>
@@ -166,7 +185,7 @@ export function BusMap({ bookings, seatCount }: { bookings: SeatInfo[]; seatCoun
               {mine.map((b) => (
                 <li key={b.id} className="flex items-center justify-between gap-2">
                   <span>
-                    <strong>{BUS_TRIPS[b.trip].label}:</strong> sete {b.seat} · {b.name} · {BUS_STOPS[b.stop].label}
+                    <strong>{BUS_TRIPS[b.trip].label}:</strong> sete {b.seat} · {b.name}{b.stop && ` · av i ${BUS_STOPS[b.stop].label}`}
                   </span>
                   <button className="btn-danger" disabled={pending} onClick={() => cancel(b.id)}>Avbestill</button>
                 </li>

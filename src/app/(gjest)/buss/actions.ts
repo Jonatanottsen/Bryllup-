@@ -3,17 +3,24 @@
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { BUS_SEAT_COUNT } from "@/config/wedding";
+import { BUS_RESERVED, BUS_SEAT_COUNT } from "@/config/wedding";
 import { db, isUniqueViolation } from "@/db";
 import { busBookings, busStop, busTrip } from "@/db/schema";
 import { getDeviceId, requireGuest } from "@/lib/session";
 
-const BookingSchema = z.object({
-  trip: z.enum(busTrip.enumValues),
-  seat: z.coerce.number().int().min(1).max(BUS_SEAT_COUNT),
-  passengerName: z.string().trim().min(2, "Skriv inn navn").max(80),
-  stop: z.enum(busStop.enumValues, "Velg stopp"),
-});
+const BookingSchema = z
+  .object({
+    trip: z.enum(busTrip.enumValues),
+    seat: z.coerce.number().int().min(1).max(BUS_SEAT_COUNT),
+    passengerName: z.string().trim().min(2, "Skriv inn navn").max(80),
+    stop: z.enum(busStop.enumValues).nullish(),
+  })
+  .refine((v) => v.trip !== "hjem" || v.stop, { message: "Velg hvor du skal gå av" })
+  .refine((v) => !BUS_RESERVED[v.trip].some((r) => r.seat === v.seat), {
+    message: "Dette setet er holdt av.",
+  })
+  // Turen dit har ett felles hentested, så stopp lagres bare for hjemturen.
+  .transform((v) => ({ ...v, stop: v.trip === "hjem" ? v.stop! : null }));
 
 export type BusResult = { error?: string; ok?: boolean };
 

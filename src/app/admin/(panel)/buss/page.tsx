@@ -1,6 +1,6 @@
 import { asc } from "drizzle-orm";
 import { ConfirmButton } from "@/components/ConfirmButton";
-import { BUS_SEAT_COUNT, BUS_STOPS, BUS_TRIPS } from "@/config/wedding";
+import { BUS_RESERVED, BUS_SEAT_COUNT, BUS_STOPS, BUS_TRIPS } from "@/config/wedding";
 import { db } from "@/db";
 import { busBookings, type BusStop, type BusTrip } from "@/db/schema";
 import { deleteBooking } from "../../actions";
@@ -20,13 +20,18 @@ export default async function BusAdmin() {
           return (
             <section key={trip} className="card">
               <h2 className="text-3xl">{BUS_TRIPS[trip].label}</h2>
-              <p className="mb-4 text-sm text-muted">{tripRows.length} av {BUS_SEAT_COUNT} seter · {BUS_TRIPS[trip].detail}</p>
-              {(Object.keys(BUS_STOPS) as BusStop[]).map((stop) => {
+              <p className="mb-4 text-sm text-muted">{tripRows.length} av {BUS_SEAT_COUNT - BUS_RESERVED[trip].length} seter booket · {BUS_TRIPS[trip].detail}</p>
+              {BUS_RESERVED[trip].length > 0 && (
+                <p className="mb-3 text-sm text-rose">
+                  ♥ Holdt av: {BUS_RESERVED[trip].map((r) => `sete ${r.seat} ${r.name}`).join(", ")}
+                </p>
+              )}
+              {(trip === "til" ? [null] : (Object.keys(BUS_STOPS) as BusStop[])).map((stop) => {
                 const list = tripRows.filter((r) => r.stop === stop);
                 return (
-                  <div key={stop} className="mb-4">
+                  <div key={stop ?? "alle"} className="mb-4">
                     <h3 className="mb-1 text-xl">
-                      {trip === "til" ? "Påstigning" : "Avstigning"} {BUS_STOPS[stop].label} ({list.length})
+                      {stop ? `Går av i ${BUS_STOPS[stop].label}` : "Passasjerer fra kirken"} ({list.length})
                     </h3>
                     <ul className="divide-y divide-black/5 text-sm">
                       {list.map((r) => (

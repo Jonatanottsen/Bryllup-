@@ -11,8 +11,8 @@ Bryllupsside med svarskjema (RSVP), allergier, praktisk info, setevalg på busse
 | `/` | Forside med nedtelling og program |
 | `/rsvp` | Svarskjema: navn, e-post, telefon, kommer/kommer ikke, hele følget, allergier per person, tale/innslag, hilsen. Gjesten kan endre svaret senere. |
 | `/praktisk` | Program, buss, antrekk, overnatting, kontakt |
-| `/buss` | Interaktivt busskart, der gjestene velger sete og stopp (Gjøvik/Raufoss) separat for turen dit og turen hjem |
-| `/onskeliste` | Gaver kan reserveres. Ved spleis registrerer gjesten et beløp og får Vipps-info. |
+| `/buss` | Interaktivt busskart. Bussen henter alle ved Raufoss kirke etter vielsen. På hjemturen velger gjesten om de går av i Raufoss eller Gjøvik. To seter på hjemturen er holdt av til brudeparet. |
+| `/onskeliste` | Gaver kan reserveres. Spleis er en gruppegave: én av bidragsyterne tar ansvar for å kjøpe gaven, og de andre Vippser til den personen. |
 | `/admin` | Kun for brudeparet: oversikt, gjesteliste, allergioppsummering, taler, busslister, administrasjon av ønskelisten og CSV-eksport |
 
 ## Oppsett (én gang)
@@ -45,7 +45,7 @@ npm run db:migrate
 
 ## Endre innhold
 
-Alt av tekst, tider, steder, bussholdeplasser, Vipps-nummer og allergiliste ligger i
+Alt av tekst, tider, steder, buss (antall seter og seter som er holdt av) og allergiliste ligger i
 **[`src/config/wedding.ts`](src/config/wedding.ts)**. Søk etter `[FYLL INN]`.
 
 Ønsker legges inn, endres og slettes i adminpanelet på `/admin/onskeliste`.
@@ -55,8 +55,10 @@ Alt av tekst, tider, steder, bussholdeplasser, Vipps-nummer og allergiliste ligg
 ```
 rsvp_responses 1───* guests                (et svar kan gjelde hele følget)
 wishlist_items 1───* wishlist_reservations (gave: maks `quantity` reservasjoner)
-               1───* wishlist_contributions (spleis: beløp mot `goal_nok`)
-bus_bookings   UNIQUE(trip, seat)          (to gjester kan aldri få samme sete)
+               1───* wishlist_contributions (spleis: beløp mot `goal_nok`,
+                                            maks én `will_organize` per gave)
+bus_bookings   UNIQUE(trip, seat)          (to gjester kan aldri få samme sete;
+                                            `stop` kun på hjemturen)
 ```
 
 - **Integritet i databasen:** unik-constraint på sete per tur, CHECK-constraints på beløp/antall/mål, og fremmednøkler med `ON DELETE CASCADE`.

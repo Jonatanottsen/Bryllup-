@@ -6,26 +6,26 @@ export const WEDDING = {
   date: new Date("2027-07-31T14:00:00+02:00"),
   dateLabel: "Lørdag 31. juli 2027",
   rsvpDeadline: "1. mai 2027 [FYLL INN]",
-  // Vipps-nummer for spleis på ønskelisten
-  vipps: "[FYLL INN Vipps-nummer]",
+  church: { name: "Raufoss kirke", address: "Kirkevegen 4, 2830 Raufoss" },
+  // phone: null skjuler nummeret til det er klart
   contact: [
-    { role: "Toastmaster", name: "[FYLL INN]", phone: "[FYLL INN]" },
+    { role: "Toastmaster", name: "Kommer snart", phone: null },
     { role: "Brudeparet", name: "Emilie & Jonatan", phone: "[FYLL INN]" },
-  ],
+  ] as { role: string; name: string; phone: string | null }[],
 };
 
 export const SCHEDULE: { time: string; title: string; place?: string }[] = [
-  { time: "14:00", title: "Vielse", place: "[FYLL INN kirke]" },
-  { time: "15:30", title: "Mottakelse og bilder", place: "[FYLL INN]" },
+  { time: "14:00", title: "Vielse", place: "Raufoss kirke, Kirkevegen 4, 2830 Raufoss" },
+  { time: "15:00", title: "Bussen kjører fra kirken til festen" },
   { time: "18:00", title: "Middag", place: "[FYLL INN festlokale]" },
   { time: "22:00", title: "Kake, kaffe og dans" },
-  { time: "02:00", title: "Bussen kjører hjem" },
+  { time: "ca. 01:30", title: "Bussen kjører hjem (Raufoss og Gjøvik)" },
 ];
 
 export const PRACTICAL: { title: string; body: string }[] = [
   {
     title: "Antrekk",
-    body: "[FYLL INN] f.eks. Mørk dress / bunad. Vi gleder oss til å se dere fine!",
+    body: "Passende dress, smoking eller kjole. Vi gleder oss til å se dere fine!",
   },
   {
     title: "Parkering",
@@ -46,20 +46,32 @@ export const PRACTICAL: { title: string; body: string }[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Buss: henter i Gjøvik → Raufoss → fest, og kjører samme vei hjem.
+// Buss: henter alle ved Raufoss kirke etter vielsen og kjører til festen.
+// Hjemtur: fest → Raufoss → Gjøvik, der gjesten velger hvor de går av.
 // ---------------------------------------------------------------------------
 
+/** Avstigningssteder på hjemturen. */
 export const BUS_STOPS = {
-  gjovik: { label: "Gjøvik", pickup: "[FYLL INN tid/sted, f.eks. 12:45 Skysstasjonen]" },
-  raufoss: { label: "Raufoss", pickup: "[FYLL INN tid/sted, f.eks. 13:10 Raufoss stasjon]" },
+  raufoss: { label: "Raufoss" },
+  gjovik: { label: "Gjøvik" },
 } as const;
 
 export const BUS_TRIPS = {
-  til: { label: "Til bryllupet", detail: "Gjøvik → Raufoss → vielse" },
-  hjem: { label: "Hjem", detail: "Fest → Raufoss → Gjøvik, kl. 02:00 [FYLL INN]" },
+  til: { label: "Til festen", detail: "Fra Raufoss kirke rett etter vielsen" },
+  hjem: { label: "Hjem", detail: "Fest → Raufoss → Gjøvik, ca. kl. 01:30 (tid ikke endelig)" },
 } as const;
 
+/** Seter som er holdt av og ikke kan bookes av gjester. */
+export const BUS_RESERVED: Record<keyof typeof BUS_TRIPS, { seat: number; name: string }[]> = {
+  til: [],
+  hjem: [
+    { seat: 1, name: "Emilie" },
+    { seat: 2, name: "Jonatan" },
+  ],
+};
+
 // Vanlig turbuss: 2 + 2 seter med midtgang, 5 seter på bakerste rad.
+// Antall seter er ikke bekreftet ennå – endre rows/backRowSeats når det er klart.
 export const BUS_LAYOUT = { rows: 11, backRowSeats: 5 };
 export const BUS_SEAT_COUNT = BUS_LAYOUT.rows * 4 + BUS_LAYOUT.backRowSeats;
 
