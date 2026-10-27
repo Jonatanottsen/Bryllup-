@@ -1,40 +1,13 @@
 import Link from "next/link";
-import { BUS_TRIPS, PRACTICAL, SCHEDULE, WEDDING } from "@/config/wedding";
+import { BUS_TRIPS, PRACTICAL, WEDDING } from "@/config/wedding";
 
 export default function PracticalPage() {
   return (
     <div className="space-y-8">
       <header className="text-center">
         <h1 className="text-5xl">Praktisk informasjon</h1>
-        <p className="mt-2 text-muted">{WEDDING.dateLabel}</p>
+        <p className="mt-2 text-muted">Alt du trenger å vite. Se også <Link href="/program" className="underline">programmet</Link>.</p>
       </header>
-
-      <section className="card">
-        <h2 className="mb-4 text-3xl">Program</h2>
-        <ol className="space-y-3">
-          {SCHEDULE.map((s) => (
-            <li key={s.time + s.title} className="flex gap-4">
-              <span className="w-20 shrink-0 font-medium text-gold">{s.time}</span>
-              <span>
-                {s.title}
-                {s.place && (
-                  <>
-                    {" · "}
-                    <a
-                      className="text-sage-dark underline"
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.place)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {s.place}
-                    </a>
-                  </>
-                )}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </section>
 
       <section className="card">
         <h2 className="mb-4 text-3xl">Buss</h2>

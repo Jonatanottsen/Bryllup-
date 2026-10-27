@@ -3,10 +3,12 @@ import { WEDDING } from "@/config/wedding";
 
 const LINKS = [
   { href: "/", label: "Hjem" },
-  { href: "/rsvp", label: "Svar" },
+  { href: "/om-oss", label: "Om oss" },
+  { href: "/program", label: "Program" },
   { href: "/praktisk", label: "Praktisk info" },
   { href: "/buss", label: "Buss" },
   { href: "/onskeliste", label: "Ønskeliste" },
+  { href: "/rsvp", label: "Svar", cta: true },
 ];
 
 export default function GuestLayout({ children }: { children: React.ReactNode }) {

@@ -22,6 +22,24 @@ export const SCHEDULE: { time: string; title: string; place?: string }[] = [
   { time: "ca. 01:30", title: "Bussen kjører hjem (Raufoss og Gjøvik)" },
 ];
 
+// ---------------------------------------------------------------------------
+// Om oss – historien deres. Bilder legges i /public/bilder og refereres som
+// "/bilder/filnavn.jpg". Kapitler uten bilde fungerer helt fint.
+// ---------------------------------------------------------------------------
+
+export const OUR_STORY: {
+  intro: string;
+  chapters: { when: string; title: string; text: string; image?: string }[];
+} = {
+  intro: "[FYLL INN] En kort hilsen fra oss to – hvem vi er og hvorfor vi gleder oss sånn til å feire med akkurat dere.",
+  chapters: [
+    { when: "[ÅR]", title: "Hvordan vi møttes", text: "[FYLL INN] Historien om første gang vi møttes." },
+    { when: "[ÅR]", title: "Første date", text: "[FYLL INN] Hvor gikk vi, og hva skjedde?" },
+    { when: "[ÅR]", title: "Frieriet", text: "[FYLL INN] Hvordan, hvor og hvem som gråt mest." },
+    { when: "31.07.2027", title: "Bryllupet", text: "Og nå gleder vi oss til å feire med dere!" },
+  ],
+};
+
 export const PRACTICAL: { title: string; body: string }[] = [
   {
     title: "Antrekk",

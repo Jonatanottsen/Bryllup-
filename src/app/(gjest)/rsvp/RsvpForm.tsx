@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { ALLERGENS } from "@/config/wedding";
 import { submitRsvp } from "./actions";
+import { RunawayNo } from "./RunawayNo";
 
 type Guest = { fullName: string; dietary: string[]; dietaryNotes: string };
 export type RsvpInitial = {
@@ -22,6 +23,7 @@ const emptyGuest = (): Guest => ({ fullName: "", dietary: [], dietaryNotes: "" }
 export function RsvpForm({ initial }: { initial: RsvpInitial }) {
   const [state, formAction, pending] = useActionState(submitRsvp, {});
   const [f, setF] = useState(initial);
+  const [noKey, setNoKey] = useState(0);
   const set = <K extends keyof RsvpInitial>(k: K, v: RsvpInitial[K]) => setF((p) => ({ ...p, [k]: v }));
   const setGuest = (i: number, g: Partial<Guest>) =>
     set("guests", f.guests.map((x, j) => (j === i ? { ...x, ...g } : x)));
@@ -59,19 +61,23 @@ export function RsvpForm({ initial }: { initial: RsvpInitial }) {
       <fieldset className="card">
         <h2 className="mb-4 text-2xl">Kommer du?</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          {[
-            { v: true, label: "Ja, jeg/vi kommer! 🥂" },
-            { v: false, label: "Dessverre, jeg/vi kan ikke" },
-          ].map((o) => (
-            <button
-              type="button"
-              key={String(o.v)}
-              onClick={() => set("attending", o.v)}
-              className={`rounded-xl border-2 p-4 text-left transition ${f.attending === o.v ? "border-sage bg-sage-light" : "border-black/10 hover:border-sage/50"}`}
-            >
-              {o.label}
-            </button>
-          ))}
+          <button
+            type="button"
+            onClick={() => {
+              set("attending", true);
+              setNoKey((k) => k + 1); // sender en rømt nei-knapp hjem igjen
+            }}
+            className={`rounded-xl border-2 p-4 text-left transition ${f.attending === true ? "border-sage bg-sage-light" : "border-black/10 hover:border-sage/50"}`}
+          >
+            Ja, jeg/vi kommer! 🥂
+          </button>
+          {f.attending === false ? (
+            <div className="rounded-xl border-2 border-sage bg-sage-light p-4">
+              Dessverre, jeg/vi kan ikke 😢
+            </div>
+          ) : (
+            <RunawayNo key={noKey} onDecline={() => set("attending", false)} />
+          )}
         </div>
       </fieldset>
 

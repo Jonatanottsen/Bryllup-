@@ -8,9 +8,11 @@ Bryllupsside med svarskjema (RSVP), allergier, praktisk info, setevalg på busse
 
 | Side | Hva |
 |---|---|
-| `/` | Forside med nedtelling og program |
-| `/rsvp` | Svarskjema: navn, e-post, telefon, kommer/kommer ikke, hele følget, allergier per person, tale/innslag, hilsen. Gjesten kan endre svaret senere. |
-| `/praktisk` | Program, buss, antrekk, overnatting, kontakt |
+| `/` | Velkomstside med nedtelling og snarveier til alle sidene |
+| `/om-oss` | Historien vår som tidslinje (tekst og bilder i `OUR_STORY`) |
+| `/program` | Dagens program med kartlenker |
+| `/rsvp` | Svarskjema: navn, e-post, telefon, kommer/kommer ikke, hele følget, allergier per person, tale/innslag, hilsen. Gjesten kan endre svaret senere. «Nei»-knappen rømmer når man prøver å trykke på den. Etter noen forsøk dukker en lenke opp øverst til høyre, der man faktisk kan takke nei. |
+| `/praktisk` | Buss, antrekk, overnatting, kontakt |
 | `/buss` | Interaktivt busskart. Bussen henter alle ved Raufoss kirke etter vielsen. På hjemturen velger gjesten om de går av i Raufoss eller Gjøvik. To seter på hjemturen er holdt av til brudeparet. |
 | `/onskeliste` | Gaver kan reserveres. Spleis er en gruppegave: én av bidragsyterne tar ansvar for å kjøpe gaven, og de andre Vippser til den personen. |
 | `/admin` | Kun for brudeparet: oversikt, gjesteliste, allergioppsummering, taler, busslister, administrasjon av ønskelisten og CSV-eksport |
@@ -47,6 +49,8 @@ npm run db:migrate
 
 Alt av tekst, tider, steder, buss (antall seter og seter som er holdt av) og allergiliste ligger i
 **[`src/config/wedding.ts`](src/config/wedding.ts)**. Søk etter `[FYLL INN]`.
+
+Bilder til «Om oss» legges i `public/bilder/` og refereres som `"/bilder/navn.jpg"` i `OUR_STORY`.
 
 Ønsker legges inn, endres og slettes i adminpanelet på `/admin/onskeliste`.
 
